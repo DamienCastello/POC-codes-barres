@@ -1,0 +1,15 @@
+{
+  "name": "owlgame-poc-codes-barres",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "poc-scandex",
+    "poc-upcitemdb"
+  ],
+  "scripts": {
+    "start:scandex": "npm run start --workspace=poc-scandex -- --port 8081 --host lan",
+    "start:upcitemdb": "npm run start --workspace=poc-upcitemdb -- --port 8082 --host lan",
+    "lint": "npm run lint --workspaces",
+    "typecheck": "npm run typecheck --workspaces"
+  }
+}
