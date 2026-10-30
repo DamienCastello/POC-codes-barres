@@ -4,12 +4,16 @@
   "private": true,
   "workspaces": [
     "poc-scandex",
-    "poc-upcitemdb"
+    "poc-upcitemdb",
+    "poc-final"
   ],
   "scripts": {
     "start:scandex": "npm run start --workspace=poc-scandex -- --port 8081 --host lan",
     "start:upcitemdb": "npm run start --workspace=poc-upcitemdb -- --port 8082 --host lan",
-    "lint": "npm run lint --workspaces",
-    "typecheck": "npm run typecheck --workspaces"
+    "start:final": "npm run start --workspace=poc-final -- --port 8083 --host lan",
+    "start:igdb": "node --env-file-if-exists=server/.env server/index.mjs",
+    "lint": "npm run lint --workspaces && eslint shared --config poc-scandex/eslint.config.js",
+    "typecheck": "npm run typecheck --workspaces",
+    "test": "node --experimental-strip-types --test server/*.test.mjs shared/*.test.mjs"
   }
 }

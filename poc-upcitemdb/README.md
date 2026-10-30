@@ -1,15 +1,30 @@
-# POC OwlGame × UPCitemdb
+# POC OwlGame × UPCitemdb + IGDB
 
-Application Expo qui lit un code-barres avec `expo-camera`, puis cherche ce numéro dans l’API généraliste [UPCitemdb](https://www.upcitemdb.com/api/). Aucun compte ni jeton n’est nécessaire pour la formule gratuite. Le [README du monorepo](../README.md) contient la comparaison avec ScanDex.
+Ce POC cherche un produit dans UPCitemdb à partir d’un code-barres, puis complète le jeu avec IGDB. La configuration Twitch/IGDB et les commandes communes sont détaillées dans le [README du monorepo](../README.md).
 
-## Essai sur Android
+## Lancer le POC
 
-1. Utiliser Expo Go compatible avec le **SDK 58**. Le téléphone et l’ordinateur doivent être sur le même réseau Wi-Fi.
-2. À la racine du monorepo, lancer `nvm use`, `npm install`, puis `npm run start:upcitemdb`.
-3. Ouvrir le QR code avec Expo Go, puis scanner une boîte de jeu. Vérifier le code affiché, le titre retourné et la présence éventuelle d’une plateforme dans le texte.
-4. Si la caméra ne lit pas le code, saisir manuellement les chiffres imprimés sous les barres.
+1. À la racine du monorepo, utiliser `nvm use` puis `npm install`.
+2. Configurer `server/.env` avec les identifiants Twitch/IGDB et lancer `npm run start:igdb`.
+3. Dans un autre terminal, lancer `npm run start:upcitemdb` et ouvrir le QR code avec Expo Go SDK 58 sur Android.
+4. Dans l’application, vérifier l’adresse avec **Configurer le serveur local**. La recherche UPCitemdb ne demande pas de jeton ; le serveur utilise les accès du projet pour IGDB.
 
-Le bouton de code d’exemple utilise `0711719546658` (God of War Ragnarök, PS5), vérifié dans UPCitemdb. Il sert uniquement à contrôler que l’API répond.
+## Parcours
+
+1. Scanner une boîte ou utiliser un des sept codes proposés.
+2. Vérifier le produit UPCitemdb et consulter son JSON complet. S’il y a plusieurs résultats, retenir celui qui correspond à la boîte. La marque n’est pas interprétée automatiquement comme un éditeur.
+3. Corriger le titre pour enlever les mentions commerciales si besoin, rechercher dans IGDB et choisir la fiche correspondante.
+4. Vérifier la jaquette et les champs enrichis, choisir la plateforme possédée puis confirmer. Le résultat peut être partagé en JSON pour garder une trace de l’essai.
+
+Si le code est absent ou si le fournisseur refuse la requête, saisir un titre pour poursuivre la recherche IGDB.
+
+## Données reçues
+
+Le POC consulte `GET https://api.upcitemdb.com/prod/trial/lookup?upc=…`. Le titre, la marque, la description et les images sont des informations produit, pas nécessairement une fiche de jeu complète. La plateforme peut être dans le titre, sans champ dédié.
+
+Le panneau JSON montre aussi les données non reprises dans la carte : offres, prix, poids, références, etc. Toutes les URL d’images sont affichées avec une tentative de chargement dans le POC, y compris celles en HTTP. Si une image ne se charge pas, son erreur et son lien d’origine restent accessibles. Une URL peut être périmée ou ne pas correspondre à la jaquette de la boîte.
+
+La fiche finale utilise les données et la jaquette d’IGDB, avec ses éditeurs et ses plateformes, puis les corrections de l’utilisateur. Les JSON des deux services sont consultables séparément.
 
 ## Résultats du 27 octobre 2026
 
@@ -33,6 +48,8 @@ UPCitemdb peut renvoyer un produit sans fournir de plateforme dans un champ dist
 
 ## Limites
 
-La [formule gratuite](https://www.upcitemdb.com/wp/docs/main/development/plan/) autorise 100 requêtes combinées par jour et jusqu’à 6 recherches par minute. Espacer les essais d’environ 10 secondes évite la limite de rythme soutenu. Un code absent peut renvoyer `200` avec `total: 0` (comme dans cet essai) ou `404` ; une limite atteinte renvoie `429`. L’application distingue ces situations.
+La [formule gratuite UPCitemdb](https://www.upcitemdb.com/wp/docs/main/development/plan/) autorise 100 requêtes combinées par jour et jusqu’à 6 recherches par minute. Espacer les essais d’environ 10 secondes évite la limite de rythme soutenu. L’application distingue un code absent d’une limite de rythme ou de quota.
 
-Ce POC vérifie la couverture et la qualité des fiches. UPCitemdb est une **API de produits**, et non une bibliothèque spécialisée dans les jeux vidéo. Les fiches peuvent être incomplètes ou ambiguës.
+IGDB a ses propres accès et limites, présentés dans le README racine. Sa fiche peut rester incomplète ; la description conserve la langue reçue et la jaquette peut différer de l’édition physique.
+
+Le résultat du POC reste en mémoire. Les résultats historiques ci-dessus concernent UPCitemdb, pas la qualité de l’enrichissement IGDB.
